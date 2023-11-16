@@ -1,0 +1,158 @@
+(function(w){
+  var config = {"metricsLabels":{"contentBoards":"TR Content Board","personalizations":"TR Personalization","audiences":"TR Audience","campaigns":"TR Campaign"},"hitTypes":{"contentBoards":"event","audiences":"event","personalizations":"event","campaigns":"event"},"shouldTrackOrgAssets":true,"firmTrackProvider":"ga","triblioVisitorId":"caumnLHIUnbQP3rYIdinAuZm","gaObjectAlias":"ga"};
+  var triblioVisitorId = config.triblioVisitorId;
+  var firmographicRecord =  {"name":"(Non-Company Visitor)","sicCode":"N/A","isIsp":true,"employees":"N/A","revenue":"N/A","city":"N/A","region":"N/A","country":"N/A","domain":"N/A","naicCode":"N/A","employeesCode":"N/A","revenueCode":"N/A","industry":"N/A","subIndustry":"N/A"};
+  var shouldTrackOrgAssets = config.shouldTrackOrgAssets;
+  var eIdsToNames = {"personalizations":{},"campaigns":{},"contentHubs":{},"audiences":{"MAJZ":"ABM Accounts | All Prospects in SFDC | Firmo 50+","b3BB":"All Target NAICS Codes + dev exclude","jeOe":"Customer List- SFDC","1mmJ":"Bombora Surge - Competitors","QgPk":"Pop Up - Everyone exclude Client and Download","kdzX":"Main Street","nwAK":"Surging","Oa05":"Financial Services","2oon":"Bombora Surge - Policy & Culture","eP9b":"ELQ - All Clients (Dynamic)","J56B":"Finserv Ad","n01O":"System Audience","jpeD":"System Audience","jEnv":"Programmatic Video Ad Visitors - The Switch","6XMl":"Programmatic Video Ad Visitors - Finding a Doc","avGw":"Programmatic Video Ad Visitors - Where's The GM","QmBx":"Bombora - Empathy cluster Catchall","xZR9":"Programmatic Video Ad Visitors - Walls of Compliance","Pzk2":"Bombora - Policy and Culture","QxzK":"No One","KnL1":"Pricing Page Visitors","bBp0":"Bombora - Empathy cluster SMB HR","aBo6":"var testing","kG1k":"Bombora TOFU","eXv6":"Everyone (except customers)","5x7o":"TOFU Bombora Display - PeopleForce22","8Kqd":"Accounts Coming from Russia","jwQX":"Nonprofits","60g5":"Surging - Wellness Benefits","aX3o":"@Data Sync - Eloqua","jwd8":"Dev Exclude","ALB9":"Everyone (Exclued Download eGuide - Eloqua segment)","YpBv":"Competitors","nwEY":"Professional Services","D039":"Technology","JzbK":"Example","zY9Z":"Bombora - Empathy cluster SMB Business Relief","kJj2":"SFDC Customers - do not use","8KZM":"Life Sciences","5Xlv":"Programmatic Video Ad Visitors - Maternity","plB7":"Programmatic Ad Visitors","npP2":"Programmatic Video Ad Visitors - PPP","kQ5X":"Bombora - Benefits & Healthcare","lD8O":"Proserv Prospects with Intent","BRvX":"Bombora - Competitors","gllM":"Bombora Surge - Benefits & Healthcare","B30O":"All Website Visitors (do not edit or delete)","XxZ8":"TNET - Customers","qR83":"Pop Up- Everyone exclude Client & Download- Higher Priority","pLwK":"Prospect Accounts - Firmo > 51"}};
+  var gaObjectAlias = config.gaObjectAlias;
+  var thirdPartyLibraryLoaded = false;
+
+  if(!w.Triblio){ w.Triblio = {}; }
+  if(w.Triblio.onAccountIdentificationReady){ w.Triblio.onAccountIdentificationReady(firmographicRecord); }
+  w.Triblio.getAccountIdentification = function(){
+    return firmographicRecord;
+  };
+
+  if(!w.TriblioAssetNameTracking) w.TriblioAssetNameTracking = {queued:[]};
+  if(config.firmTrackProvider === "ga4") {
+    w.dataLayer = w.dataLayer || [];
+  }
+
+  function GATracker(){
+    this.maxRetries = 1000;
+    this.retryCount = 0;
+  }
+
+  GATracker.prototype.run = function(){
+    var that = this;
+
+    this.waitForThirdParty(function(){
+      that.postFirmographicData();
+
+      that.checkAssetNamesQueue();
+    });
+  };
+
+  GATracker.prototype.waitForThirdParty = function(callback){
+    var that = this;
+    let hasFirmTrackProviderObject = true;
+
+    if(config.firmTrackProvider === "ga4" && typeof w.google_tag_manager === "undefined") hasFirmTrackProviderObject = false;
+    else if(config.firmTrackProvider === "ga" && typeof w[gaObjectAlias] === "undefined") hasFirmTrackProviderObject = false;
+
+    let errorText = config.firmTrackProvider === "ga4" ? "Unable to find gtag or google tag manager analytics library on page" : "cant find google analytics library on page!";
+
+    if(!hasFirmTrackProviderObject && this.retryCount <= this.maxRetries){
+      /*wait for ga to load*/
+      setTimeout(function(){
+        that.retryCount++;
+        that.waitForThirdParty(callback);
+      }, 5);
+    }
+    else if(this.retryCount > this.maxRetries){
+      console.log(errorText);
+    }
+    else{
+      thirdPartyLibraryLoaded = true;
+      callback();
+    }
+  };
+
+  GATracker.prototype.postFirmographicData = function(){
+    var data = {"name":"(Non-Company Visitor)","sicCode":"N/A","isIsp":true,"employees":"N/A","revenue":"N/A","city":"N/A","region":"N/A","country":"N/A","domain":"N/A","naicCode":"N/A","employeesCode":"N/A","revenueCode":"N/A","industry":"N/A","subIndustry":"N/A"};
+ga.getAll().forEach(function(tracker){
+if( tracker.get("trackingId") === "UA-23945763-4"){
+  tracker.set("dimension1", data.domain);
+  tracker.set("dimension2", data.industry);
+  tracker.set("dimension3", data.naicCode);
+  tracker.set("dimension4", data.employees);
+  tracker.set("dimension7", "undefined");
+  tracker.set("dimension8", "undefined");
+  tracker.send("event", {nonInteraction: true});
+}
+});
+  };
+
+  GATracker.prototype.checkAssetNamesQueue = function(){
+    var that = this;
+
+    if(w.TriblioAssetNameTracking.queued){
+      w.TriblioAssetNameTracking.queued.forEach(function(ids){
+        that.postAssetNames(ids);
+      });
+    }
+  };
+
+  GATracker.prototype.postAssetNames = function(ids){
+    if(shouldTrackOrgAssets && thirdPartyLibraryLoaded){
+      var data = _getAssetNamesFromIds(ids);
+
+      data.forEach(function(d){
+      window[gaObjectAlias]("send",{
+        "hitType": d.hitType,
+        "eventCategory": d.metricsLabel,
+        "eventLabel": d.name,
+        "nonInteraction": true
+      });
+    });
+    }
+  };
+
+  function _getAssetNamesFromIds(data){
+    /*currently there is no click tracking on assets for ga, so get out of here!*/
+    if(data.action === 'click') return [];
+
+    var lookup = eIdsToNames;
+    if(!lookup || !Object.keys(lookup).length){
+      lookup = {personalizations:{}, contentHubs: {}, audiences:{}, campaigns:{}};
+    }
+
+    var names = [];
+    var isTypeBoardAndHasData = data.hubId && lookup.contentHubs[data.hubId];
+
+    if(isTypeBoardAndHasData){
+      names.push({
+        metricsLabel:config.metricsLabels.contentBoards,
+        name: lookup.contentHubs[data.hubId],
+        hitType: config.hitTypes.contentBoards
+      });
+    }
+    else if(data.type !== "board" && data.personalizationId && data.audienceSegmentId && data.campaignId){
+      var personalizationIds = data.personalizationId.split(",");
+      var audienceSegmentIds = data.audienceSegmentId.split(",");
+      var campaignIds = data.campaignId.split(",");
+
+      personalizationIds.forEach(function(pId, index){
+        var hasPersonalization = (personalizationIds[index] && lookup.personalizations[personalizationIds[index]]) ? true : false;
+        var hasAudience = (audienceSegmentIds[index] && lookup.audiences[audienceSegmentIds[index]]) ? true : false;
+        var hasCampaign = (campaignIds[index] && lookup.campaigns[campaignIds[index]]) ? true : false;
+
+        if(hasPersonalization && hasAudience && hasCampaign){
+          names.push({
+            metricsLabel:config.metricsLabels.personalizations,
+            name: lookup.personalizations[personalizationIds[index]],
+            hitType: config.hitTypes.personalizations
+          });
+
+          names.push({
+            metricsLabel: config.metricsLabels.campaigns,
+            name: lookup.campaigns[campaignIds[index]],
+            hitType: config.hitTypes.campaigns
+          });
+
+          names.push({
+            metricsLabel: config.metricsLabels.audiences,
+            name: lookup.audiences[audienceSegmentIds[index]],
+            hitType: config.hitTypes.audiences
+          });
+        }
+      });
+    }
+    return names;
+  }
+
+  var tracker = new GATracker();
+  w.TriblioAssetNameTracking.postAssetNames = tracker.postAssetNames;
+
+  tracker.run();
+}(window));

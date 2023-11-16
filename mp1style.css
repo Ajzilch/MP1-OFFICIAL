@@ -1,0 +1,153 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.navbar {
+    display: flex;
+    align-items: center;
+    
+    
+}
+nav{
+    flex: 1;
+    text-align: right;
+    
+}
+nav ul{
+    display: inline-block;
+    list-style: none;
+    
+}
+nav ul li{
+    display: inline-block;
+    margin-right: 20px;
+    
+    
+}
+nav ul li a{
+    text-decoration: none;
+    color: white;
+    background-color: chocolate;
+    padding: 5px;
+    border-radius: 30px;
+    
+}
+nav ul li a:hover{
+    background-color: black;
+}
+.container{
+    max-width: 1300px;
+    margin: auto;
+    padding-left: 25px;
+    padding-right: 25px;
+}
+.row{
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+.col-6{
+    flex-basis: 50%;
+    min-width:  300px;
+    font-family: Bebas Neue;
+}
+.col-6 img{
+    max-width: 100%;
+    padding: 50px 0;
+}
+
+.smallcontainer h1{
+    text-align: center;
+    background-image: linear-gradient(chocolate, gray);
+
+}
+.smallcontainer .col-2{
+    width: 200px;
+    height: 350px;
+    background-color:chocolate;
+    color: black;
+    font-family: Bebas Neue;
+   
+
+}
+.smallcontainer .col-2 img{
+    max-width: 100%;
+    align-items: center;
+    padding: 20px;
+}
+.smallcontainer h6{
+    text-align: center;
+}
+.smallcontainer p{
+    text-align: center;
+}
+.containerfluid .col-6{
+    margin-top: 50px;
+    height: auto;
+    max-width: 100%;
+    text-align: center;
+    color:  black;
+}
+
+footer img{
+max-width: 250px;
+align-items: center;
+}
+footer a{
+    color: white;
+    text-decoration: none;
+    border-radius: 25px
+    
+}
+footer a:hover{
+    background-color: black;
+    transition: 1s;
+}
+.contain img{
+    
+}
+.contain h1{
+    padding: 20px;
+    margin-top: 0;
+    text-align: center;
+}
+.contain h2{
+    text-align: center;
+    margin-bottom: 300px;
+    
+    
+}
+.contain input{
+    color:white;
+    background-color: chocolate;
+    padding: 20px;
+    border-radius: 30px;
+    border: none;
+    margin: 20px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+.contain input:hover{
+    transition: 1s;
+    background-color: black;
+}
+.smallcontain .col-2{
+    width: 100px;
+    border: white;
+}
+table, th, td{
+    border: 1px solid black;
+    width: 20%;
+    border-collapse: collapse;
+    padding: 5px;
+    margin: 30px;
+}
+.smallcontain input{
+    background-color: chocolate;
+    border-radius: 25px;
+    border: none;
+    cursor: pointer;
+}
+    
